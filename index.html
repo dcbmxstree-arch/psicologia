@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Multiestudios – Tutor Inteligente para Especialistas Policiales (Área Social)</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f4f6f9; color: #333; }
+    .whatsapp-float {
+      position: fixed; bottom: 20px; right: 20px; z-index: 1000;
+      width: 60px; height: 60px; background-color: #25D366; border-radius: 50%;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: transform 0.2s;
+    }
+    .whatsapp-float:hover { transform: scale(1.1); }
+    .whatsapp-float a { color: white; text-decoration: none; font-size: 30px; line-height: 1; }
+    .footer {
+      text-align: center; padding: 1rem; background: #004d40; color: white;
+      font-size: 0.9rem; position: fixed; bottom: 0; width: 100%; z-index: 999;
+    }
+    .access-screen {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 100vh; background: linear-gradient(135deg, #004d40, #00695c);
+      padding-bottom: 4rem;
+    }
+    .access-card {
+      background: white; padding: 3rem 2rem; border-radius: 1rem; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      text-align: center; width: 90%; max-width: 450px; margin: 2rem 0;
+    }
+    .access-card h1 { color: #004d40; margin-bottom: 0.2rem; font-size: 2rem; }
+    .access-card .subtitle { color: #7f8c8d; margin-bottom: 0.5rem; }
+    .access-card .lema { color: #555; margin-bottom: 2rem; font-style: italic; }
+    .access-card select, .access-card input {
+      width: 100%; padding: 0.8rem; margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 0.5rem;
+      font-size: 1rem;
+    }
+    .btn {
+      background: #004d40; color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 0.5rem;
+      font-size: 1rem; cursor: pointer; transition: background 0.3s; width: 100%; margin-top: 0.5rem;
+    }
+    .btn:hover { background: #00695c; }
+    .btn.secondary { background: #607d8b; }
+    .btn.muestra { background: #c9a84c; color: #004d40; font-weight: bold; }
+    .btn.muestra:hover { background: #d4af5e; }
+    .error-msg { color: #c62828; margin-top: 0.5rem; font-weight: bold; }
+    .main-panel { display: none; padding: 2rem; max-width: 1100px; margin: 0 auto; padding-bottom: 5rem; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+    .header h2 { color: #004d40; }
+    .logout-btn { background: #b71c1c; color: white; border: none; padding: 0.5rem 1.2rem; border-radius: 0.3rem; cursor: pointer; }
+    .section { background: white; border-radius: 0.8rem; padding: 1.8rem; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .section h3 { color: #004d40; margin-bottom: 1rem; border-bottom: 2px solid #004d40; padding-bottom: 0.4rem; }
+    .temario-list { max-height: 400px; overflow-y: auto; padding: 0.5rem; background: #fafafa; border-radius: 0.4rem; }
+    .temario-item { padding: 0.7rem; border-bottom: 1px solid #e0e0e0; cursor: pointer; }
+    .temario-item:hover { background: #e0f2f1; }
+    .case-box, .model-answer-box, .feedback-box { margin-top: 1rem; }
+    textarea { width: 100%; height: 200px; padding: 0.8rem; border: 1px solid #ccc; border-radius: 0.5rem; resize: vertical; font-size: 0.95rem; }
+    .loading { text-align: center; color: #004d40; margin: 1rem 0; }
+    .btn-group { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; }
+    .btn-group .btn { width: auto; }
+    pre { white-space: pre-wrap; background: #f5f5f5; padding: 1rem; border-radius: 0.5rem; }
+    .modal {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6); z-index: 2000; align-items: center; justify-content: center;
+    }
+    .modal-content {
+      background: white; border-radius: 1rem; padding: 2rem; max-width: 700px; width: 90%;
+      max-height: 80vh; overflow-y: auto; position: relative;
+    }
+    .modal-content h3 { color: #004d40; margin-bottom: 1rem; }
+    .close-modal {
+      position: absolute; top: 1rem; right: 1.2rem; font-size: 1.5rem; cursor: pointer;
+      color: #555; background: none; border: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="whatsapp-float">
+  <a href="https://wa.me/593996328491" target="_blank" title="Contactar por WhatsApp">💬</a>
+</div>
+
+<div class="footer">
+  Powered by Physics – 0995324419 &nbsp;|&nbsp; © 2026 Multiestudios
+</div>
+
+<div id="modalMuestra" class="modal">
+  <div class="modal-content">
+    <button class="close-modal" id="closeModalBtn">&times;</button>
+    <h3>Caso Práctico de Muestra (Psicología Forense)</h3>
+    <div id="muestraContent"></div>
+  </div>
+</div>
+
+<div id="accessScreen" class="access-screen">
+  <div class="access-card">
+    <h1>MULTIESTUDIOS</h1>
+    <p class="subtitle">Centro de Educación Continua</p>
+    <p class="lema">Tutor Inteligente para Postulantes a Especialistas de la Policía Nacional en el Área Social</p>
+    <input type="text" id="cedulaInput" placeholder="Número de cédula" />
+    <select id="carreraSelect">
+      <option value="">Seleccione carrera</option>
+      <option>Psicología</option>
+      <option>Psicología Forense</option>
+      <option>Comunicación Social</option>
+    </select>
+    <button class="btn" id="btnIngresar">Ingresar</button>
+    <button class="btn muestra" id="btnMuestra">📋 Ver caso práctico de muestra</button>
+    <div id="loginError" class="error-msg"></div>
+  </div>
+</div>
+
+<div id="mainPanel" class="main-panel">
+  <div class="header">
+    <h2>Panel del Aspirante – <span id="careerDisplay"></span></h2>
+    <button class="logout-btn" id="btnLogout">Cerrar sesión</button>
+  </div>
+
+  <div class="section">
+    <h3>Temario de 50 temas – <span id="careerTemarioTitle"></span></h3>
+    <input type="text" id="searchTema" placeholder="Buscar tema..." style="width:100%; padding:0.5rem; margin-bottom:0.5rem;" onkeyup="App.filterTemas()" />
+    <div id="temarioContainer" class="temario-list"></div>
+  </div>
+
+  <div class="section">
+    <h3>Caso Práctico</h3>
+    <div id="caseContent" class="case-box">Presione "Crear caso práctico" para comenzar.</div>
+    <div class="btn-group">
+      <button class="btn" id="btnCasoBanco">Crear caso práctico (banco)</button>
+      <button class="btn secondary" id="btnCasoIA">Nuevo caso con IA</button>
+    </div>
+    <div id="caseLoading" class="loading" style="display:none;">Generando caso, por favor espere...</div>
+  </div>
+
+  <div class="section">
+    <h3>Tu Respuesta</h3>
+    <textarea id="userAnswer" placeholder="Escribe aquí tu respuesta técnica detallada..."></textarea>
+  </div>
+
+  <div class="section">
+    <h3>Solución y Retroalimentación</h3>
+    <div class="btn-group">
+      <button class="btn" id="btnVerRespuesta">Ver respuesta técnica</button>
+      <button class="btn secondary" id="btnRevisar">Revisar mi respuesta (IA)</button>
+    </div>
+    <div id="modelAnswerBox" class="model-answer-box" style="display:none;">
+      <h4>Respuesta técnica:</h4>
+      <div id="modelAnswerContent"></div>
+    </div>
+    <div id="feedbackBox" class="feedback-box" style="display:none;">
+      <h4>Evaluación de tu respuesta:</h4>
+      <div id="feedbackContent"></div>
+    </div>
+    <div id="feedbackLoading" class="loading" style="display:none;">Analizando tu respuesta, espera unos segundos...</div>
+  </div>
+</div>
+
+<script>
+const App = {
+  API_KEY: 'sk-tu-api-key-aqui',
+  API_URL: 'https://api.deepseek.com/v1/chat/completions',
+  MODEL: 'deepseek-v4-flash',
+  currentUser: null,
+  currentCase: null,
+  modelAnswerVisible: false,
+  temasActuales: [],
+  usuarios: [
+    { cedula: '1755555555', carrera: 'Psicología' },
+    { cedula: '1766666666', carrera: 'Psicología Forense' },
+    { cedula: '1777777777', carrera: 'Comunicación Social' }
+  ]
+};
+
+App.temarios = {
+  'Psicología': [
+    "1. Teorías del estrés y afrontamiento en el personal policial.",
+    "2. Prevención del síndrome de burnout en unidades operativas.",
+    "3. Evaluación psicológica del desempeño y aptitud profesional.",
+    "4. Psicología organizacional: clima laboral y cultura institucional.",
+    "5. Liderazgo y motivación en mandos medios de la Policía Nacional.",
+    "6. Selección de personal: entrevista por competencias y pruebas psicométricas.",
+    "7. Psicología de la emergencia: intervención en crisis y primeros auxilios psicológicos.",
+    "8. Trastorno de estrés postraumático (TEPT) en agentes expuestos a incidentes críticos.",
+    "9. Manejo del duelo en compañeros caídos en acto de servicio.",
+    "10. Técnicas de debriefing y defusing tras eventos traumáticos.",
+    "11. Comunicación asertiva en situaciones de alta tensión.",
+    "12. Inteligencia emocional y manejo de la presión operativa.",
+    "13. Psicología positiva y resiliencia: programas de fortalecimiento.",
+    "14. Entrenamiento en habilidades sociales para la atención al ciudadano.",
+    "15. Mediación de conflictos comunitarios: rol del psicólogo policial.",
+    "16. Violencia intrafamiliar: detección y abordaje desde el ámbito policial.",
+    "17. Atención psicológica a víctimas de delitos violentos.",
+    "18. Intervención con menores en situación de riesgo o desprotección.",
+    "19. Psicología del consumo de sustancias: prevención de recaídas.",
+    "20. Programas de prevención del suicidio en centros de detención.",
+    "21. Dinámica de grupos y manejo de equipos multidisciplinarios.",
+    "22. Psicología comunitaria: fortaleciendo la relación policía‑sociedad.",
+    "23. Evaluación de clima laboral en destacamentos fronterizos.",
+    "24. Género y diversidad: transversalización en la cultura policial.",
+    "25. Acoso laboral (mobbing): identificación e intervención institucional.",
+    "26. Formación continua: diseño de talleres psicoeducativos.",
+    "27. Ética profesional del psicólogo en el ámbito policial.",
+    "28. Confidencialidad y límites del secreto profesional.",
+    "29. Elaboración de informes psicológicos para uso administrativo.",
+    "30. Análisis de puestos de trabajo desde la psicología ocupacional.",
+    "31. Carga mental y fatiga por compasión en personal de trato directo.",
+    "32. Trastornos del sueño en personal con turnos rotativos.",
+    "33. Psicología del testimonio: factores que afectan la memoria.",
+    "34. Técnicas de entrevista a víctimas sin revictimización.",
+    "35. Percepción social de la policía y estrategias de acercamiento.",
+    "36. Programas de bienestar psicológico para familias de policías.",
+    "37. Jubilación y transición a la vida civil: preparación psicológica.",
+    "38. Adicciones comportamentales: juego patológico y nuevas tecnologías.",
+    "39. Manejo conductual en personas con trastornos mentales en custodia.",
+    "40. Psicología de la negociación en situaciones de rehenes.",
+    "41. Evaluación de riesgos psicosociales en la organización policial.",
+    "42. Supervisión y acompañamiento psicológico a cadetes.",
+    "43. Dinámica del poder y autoridad en la institución policial.",
+    "44. Participación en juntas de selección y tribunales de ascenso.",
+    "45. Diseño de programas de promoción de la salud mental.",
+    "46. Normativa de seguridad y salud en el trabajo (IESS) aplicada a riesgos psicosociales.",
+    "47. Contratación pública de servicios psicológicos (LOSNCP).",
+    "48. Coordinación interinstitucional con el Ministerio de Salud Pública.",
+    "49. Investigación aplicada: lectura crítica de artículos científicos.",
+    "50. Planeación estratégica del departamento de Psicología Institucional."
+  ],
+  'Psicología Forense': [
+    "1. Introducción a la psicología forense: marco legal en Ecuador.",
+    "2. Evaluación de la imputabilidad en el COIP.",
+    "3. Trastornos mentales y responsabilidad penal.",
+    "4. Simulación y disimulación de síntomas en el contexto forense.",
+    "5. Entrevista clínico‑forense: técnicas y protocolos.",
+    "6. Evaluación del riesgo de violencia y reincidencia.",
+    "7. Psicología del testimonio: credibilidad del relato.",
+    "8. Evaluación de la huella psíquica en víctimas de delitos violentos.",
+    "9. Peritaje psicológico en casos de abuso sexual.",
+    "10. Violencia de género: valoración psicológica forense.",
+    "11. Maltrato infantil: indicadores psicológicos y entrevista forense.",
+    "12. Evaluación psicológica en casos de custodia y régimen de visitas.",
+    "13. Perfiles criminales: fundamentos y aplicaciones.",
+    "14. Psicopatía y trastorno antisocial de la personalidad: implicaciones forenses.",
+    "15. Agresores sexuales: evaluación y tipologías.",
+    "16. Psicología del homicidio: motivaciones y dinámica delictiva.",
+    "17. Autopsia psicológica: metodología y aplicación en muertes dudosas.",
+    "18. Evaluación del daño psicológico en víctimas de tortura.",
+    "19. Trata de personas: intervención psicológica forense.",
+    "20. Menores infractores: evaluación y medidas socioeducativas.",
+    "21. Mediación penal y justicia restaurativa: rol del psicólogo forense.",
+    "22. El informe pericial psicológico: estructura y contenido.",
+    "23. Ratificación y defensa del informe en audiencia oral.",
+    "24. Ética del perito psicólogo: imparcialidad y objetividad.",
+    "25. Cadena de custodia de la evidencia psicológica.",
+    "26. Interconsulta con medicina legal y trabajo social.",
+    "27. Evaluación psicológica de testigos protegidos.",
+    "28. Psicología del jurado: influencia de sesgos y prejuicios.",
+    "29. Detección del engaño y análisis de contenido basado en criterios.",
+    "30. Evaluación de la competencia para declarar en juicio.",
+    "31. Trastorno de estrés postraumático complejo en víctimas de violencia prolongada.",
+    "32. Evaluación psicológica en casos de acoso laboral y mobbing con implicaciones legales.",
+    "33. Violencia filio‑parental: abordaje forense.",
+    "34. Psicología penitenciaria: clasificación y tratamiento.",
+    "35. Conducción bajo efectos de sustancias: evaluación psicológica complementaria.",
+    "36. Responsabilidad profesional del psicólogo forense en la administración de justicia.",
+    "37. Protocolos internacionales (Estambul, Minnesota) en la valoración forense.",
+    "38. Trabajo con poblaciones indígenas: interculturalidad en la pericia.",
+    "39. Evaluación psicológica en casos de delitos informáticos.",
+    "40. Psicología forense en el ámbito contravencional y de tránsito.",
+    "41. Uso de instrumentos psicométricos en el contexto forense (PAI, MMPI‑2, etc.).",
+    "42. Elaboración de perfiles victimológicos.",
+    "43. Técnicas de entrevista a agresores.",
+    "44. Evaluación del arrepentimiento y la simulación de rehabilitación.",
+    "45. Intervención en crisis en el contexto judicial (salas de entrevista).",
+    "46. Psicología forense y Derechos Humanos: estándares internacionales.",
+    "47. Jurisprudencia ecuatoriana relevante en peritajes psicológicos.",
+    "48. Coordinación con la Fiscalía General del Estado y la Defensoría Pública.",
+    "49. Investigación y estadística aplicada a la psicología forense.",
+    "50. Supervisión de casos y desarrollo profesional continuo."
+  ],
+  'Comunicación Social': [
+    "1. Comunicación institucional en la Policía Nacional: principios y valores.",
+    "2. Manejo de imagen y reputación corporativa.",
+    "3. Redacción de boletines de prensa y comunicados oficiales.",
+    "4. Vocería: técnicas de entrevista y conferencias de prensa.",
+    "5. Relaciones con medios de comunicación: construcción de confianza.",
+    "6. Gestión de crisis comunicacionales en incidentes policiales.",
+    "7. Comunicación en redes sociales: estrategia de contenidos.",
+    "8. Periodismo digital y nuevas narrativas: web, blogs, podcast.",
+    "9. Desinformación y fake news: estrategias de verificación.",
+    "10. Transparencia y acceso a la información pública (LOTAIP).",
+    "11. Ley Orgánica de Comunicación del Ecuador: aplicación en el sector público.",
+    "12. Ética periodística y deontología profesional.",
+    "13. Comunicación interna: fortalecimiento de la cultura organizacional.",
+    "14. Diseño de campañas de prevención y educación ciudadana.",
+    "15. Marketing social para programas de seguridad pública.",
+    "16. Fotografía y producción audiovisual para comunicación policial.",
+    "17. Manejo de la comunicación en operativos de alto riesgo.",
+    "18. Protección de datos personales en la difusión de información.",
+    "19. Comunicación en situaciones de emergencia y desastres naturales.",
+    "20. Relaciones públicas y protocolo institucional.",
+    "21. Organización de eventos y ceremonias oficiales.",
+    "22. Comunicación para la igualdad de género y diversidad.",
+    "23. Prevención de la violencia desde la comunicación comunitaria.",
+    "24. Comunicación no verbal y lenguaje corporal en entrevistas.",
+    "25. Técnicas de redacción de discursos para altos mandos.",
+    "26. Manejo de plataformas de monitoreo de medios y clipping.",
+    "27. Accesibilidad y lenguaje claro en la comunicación pública.",
+    "28. Comunicación intercultural en zonas con diversidad étnica.",
+    "29. Construcción de discurso policial y narrativa institucional.",
+    "30. Planificación estratégica de comunicación (modelos PES, RACE).",
+    "31. Comunicación para la rendición de cuentas a la ciudadanía.",
+    "32. El rol del comunicador en consejos de seguridad ciudadana.",
+    "33. Investigación periodística aplicada a temas de seguridad.",
+    "34. Derecho a la propia imagen y consentimiento en coberturas.",
+    "35. Producción de contenidos gráficos: infografías y visualización de datos.",
+    "36. Comunicación de riesgo: alertas y recomendaciones a la población.",
+    "37. Gestión de comentarios y trolles en redes institucionales.",
+    "38. Colaboración con influencers y líderes de opinión.",
+    "39. Normativa de publicidad estatal y contratación de pauta (LOSNCP).",
+    "40. Evaluación de impacto de campañas comunicacionales.",
+    "41. Comunicación en procesos electorales y participación ciudadana.",
+    "42. Protección de fuentes periodísticas y confidencialidad.",
+    "43. Lenguaje incluyente y no discriminatorio.",
+    "44. Comunicación para la seguridad vial y prevención de accidentes.",
+    "45. Técnicas de neuromarketing aplicadas a mensajes de prevención.",
+    "46. Comunicación durante crisis de rehenes o secuestros.",
+    "47. Elaboración de manuales de identidad visual corporativa.",
+    "48. Comunicación 2.0: interacción con la ciudadanía en tiempo real.",
+    "49. Big data y análisis de tendencias en redes para inteligencia policial.",
+    "50. Innovación en comunicación: realidad aumentada, IA generativa y ética."
+  ]
+};
+
+App.casosBanco = {
+  'Psicología': {
+    enunciado: "Un agente de 40 años, con 18 años de servicio en la unidad de tránsito, acude al departamento de psicología institucional por insomnio, irritabilidad y desmotivación creciente. Refiere que 'ya no aguanta' el trato con conductores agresivos y las largas jornadas. En los últimos meses ha llegado tarde en varias ocasiones y su supervisor reporta baja en el rendimiento. No hay antecedentes psiquiátricos previos. Usted debe evaluarlo y diseñar un plan de manejo.",
+    preguntas: [
+      "1. ¿Qué cuadros clínicos sospecha y qué instrumentos psicométricos utilizaría para la evaluación?",
+      "2. Describa una propuesta de intervención psicológica breve, considerando el contexto policial.",
+      "3. ¿Qué medidas organizacionales recomendaría a la jefatura para prevenir el burnout en esa unidad?"
+    ],
+    solucion: "1. Se sospecha síndrome de burnout (agotamiento emocional, despersonalización, baja realización personal) y posible trastorno adaptativo mixto. Instrumentos: Maslach Burnout Inventory (MBI), Inventario de Depresión de Beck (BDI‑II) y entrevista clínica estructurada. Es clave descartar ideación suicida.\n2. Intervención breve: psicoeducación sobre el estrés crónico, técnicas de respiración diafragmática y reestructuración cognitiva para manejo de pensamientos automáticos. Sesiones semanales por 8 semanas, con seguimiento telefónico. Derivar a psiquiatría si hay depresión mayor.\n3. Recomendaciones organizacionales: rotación periódica de funciones, pausas activas programadas, grupos de apoyo entre pares, capacitación en inteligencia emocional y evaluación periódica de clima laboral. Implementar un programa de reconocimiento al desempeño."
+  },
+  'Psicología Forense': {
+    enunciado: "Un detenido de 32 años, acusado de homicidio, alega que 'escuchó voces que le ordenaron matar' y que no recuerda los hechos. El juez solicita una pericia psicológica para determinar su estado mental al momento del delito y su capacidad procesal actual. Usted debe realizar la evaluación forense y emitir el informe pericial correspondiente.",
+    preguntas: [
+      "1. ¿Qué aspectos evaluaría para valorar la imputabilidad del detenido según el COIP?",
+      "2. Describa el protocolo de entrevista y las pruebas psicométricas que aplicaría.",
+      "3. ¿Cómo estructuraría el informe pericial para que sea admisible en la audiencia oral?"
+    ],
+    solucion: "1. Se evalúa: a) Capacidad de comprender la ilicitud del acto (dimensión cognitiva); b) Capacidad de dirigir su conducta conforme a esa comprensión (dimensión volitiva). Se debe indagar presencia de trastorno mental grave (esquizofrenia, trastorno delirante) o trastorno de personalidad que anule dichas capacidades, según el Art. 36 del COIP.\n2. Protocolo: 1) Revisión del expediente; 2) Entrevista clínico‑forense semiestructurada (explorando síntomas al momento del hecho y actuales); 3) Aplicación de pruebas: MMPI‑2 (perfil psicopatológico), PAI (evaluación clínica y de simulación), Test de Rey (detección de simulación de problemas de memoria); 4) Entrevistas colaterales a familiares o custodios.\n3. El informe debe contener: datos de identificación, motivo de la pericia, metodología, antecedentes del caso, resultados de las pruebas (con interpretación), análisis forense (relación trastorno‑delito), conclusiones (respondiendo al quesito judicial) y firma del perito. Debe ser claro, conciso y fundamentado para ser defendido en audiencia."
+  },
+  'Comunicación Social': {
+    enunciado: "Un video que muestra a dos policías forcejeando violentamente con un civil se ha viralizado en redes sociales. La prensa exige una declaración oficial. La institución debe emitir un comunicado y organizar una rueda de prensa. Usted, como comunicador social, debe gestionar la crisis comunicacional.",
+    preguntas: [
+      "1. ¿Cuál sería la estrategia inmediata para manejar la crisis en las primeras 24 horas?",
+      "2. Redacte un borrador de comunicado oficial que responda a la situación, manteniendo la transparencia y el respeto institucional.",
+      "3. ¿Qué aspectos debe cuidar durante la rueda de prensa respecto al vocero y las preguntas de los periodistas?"
+    ],
+    solucion: "1. Estrategia inmediata: 1) Activar el comité de crisis; 2) Recabar toda la información verificada (hora, lugar, implicados, versión preliminar); 3) Emitir un comunicado en las primeras 2 horas reconociendo el incidente, informando que se inició una investigación interna y expresando solidaridad si hay heridos; 4) Preparar al vocero con mensajes clave y posibles preguntas; 5) Monitorear redes sociales para responder con información oficial.\n2. Borrador de comunicado: 'La Policía Nacional informa que se ha tomado conocimiento de un incidente ocurrido el día de hoy en [lugar], en el que intervinieron dos servidores policiales. Se ha dispuesto una investigación inmediata para esclarecer los hechos y determinar responsabilidades. Reiteramos nuestro compromiso con el respeto irrestricto a los derechos humanos y la transparencia ante la ciudadanía. Para mayor información, se convoca a rueda de prensa a las [hora].'\n3. Durante la rueda de prensa: el vocero debe mostrar calma y empatía, ceñirse a los hechos (sin especular), no confrontar con periodistas, responder con frases puente si no se tiene información, y asegurar que la investigación será imparcial. Evitar el 'sin comentarios' y mantener contacto visual. Registrar la rueda de prensa para su archivo."
+  }
+};
+
+App.muestraCaso = App.casosBanco['Psicología Forense'];
+
+App.mostrarAcceso = function() {
+  document.getElementById('accessScreen').style.display = 'flex';
+  document.getElementById('mainPanel').style.display = 'none';
+  document.getElementById('cedulaInput').value = '';
+  document.getElementById('carreraSelect').value = '';
+  document.getElementById('loginError').textContent = '';
+};
+
+App.mostrarPanel = function() {
+  document.getElementById('accessScreen').style.display = 'none';
+  document.getElementById('mainPanel').style.display = 'block';
+  document.getElementById('careerDisplay').textContent = App.currentUser.carrera;
+  document.getElementById('careerTemarioTitle').textContent = App.currentUser.carrera;
+  App.resetearCaso();
+  document.getElementById('userAnswer').value = '';
+  document.getElementById('modelAnswerBox').style.display = 'none';
+  document.getElementById('feedbackBox').style.display = 'none';
+  App.cargarTemario();
+};
+
+App.resetearCaso = function() {
+  App.currentCase = null;
+  document.getElementById('caseContent').innerHTML = 'Presione "Crear caso práctico" para comenzar.';
+  document.getElementById('modelAnswerBox').style.display = 'none';
+  document.getElementById('feedbackBox').style.display = 'none';
+  App.modelAnswerVisible = false;
+};
+
+App.login = function() {
+  const cedula = document.getElementById('cedulaInput').value.trim();
+  const carrera = document.getElementById('carreraSelect').value;
+  const errorDiv = document.getElementById('loginError');
+  errorDiv.textContent = '';
+  if (!cedula || !carrera) {
+    errorDiv.textContent = 'Complete todos los campos.';
+    return;
+  }
+  const encontrado = App.usuarios.find(u => u.cedula === cedula && u.carrera === carrera);
+  if (encontrado) {
+    App.currentUser = encontrado;
+    App.mostrarPanel();
+  } else {
+    errorDiv.textContent = 'Cédula o carrera no autorizada.';
+  }
+};
+
+App.logout = function() {
+  App.currentUser = null;
+  App.mostrarAcceso();
+};
+
+App.cargarTemario = function() {
+  App.temasActuales = App.temarios[App.currentUser.carrera] || [];
+  App.renderizarTemario();
+};
+
+App.renderizarTemario = function(filtro = '') {
+  const container = document.getElementById('temarioContainer');
+  const filtrados = App.temasActuales.filter(t => t.toLowerCase().includes(filtro.toLowerCase()));
+  container.innerHTML = filtrados.map(t => `<div class="temario-item">${t}</div>`).join('');
+};
+
+App.filterTemas = function() {
+  const texto = document.getElementById('searchTema').value;
+  App.renderizarTemario(texto);
+};
+
+App.loadCaseFromBank = async function() {
+  if (!App.currentUser) return;
+  const caso = App.casosBanco[App.currentUser.carrera];
+  if (!caso) {
+    document.getElementById('caseContent').innerHTML = 'No hay caso precargado para esta carrera. Use "Nuevo caso con IA".';
+    App.currentCase = null;
+    return;
+  }
+  App.currentCase = caso;
+  App.displayCase(caso);
+};
+
+App.displayCase = function(caseObj) {
+  const html = `
+    <p><strong>Contexto operacional:</strong></p>
+    <p>${caseObj.enunciado}</p>
+    <p><strong>Preguntas:</strong></p>
+    <ol>${caseObj.preguntas.map(p => `<li>${p}</li>`).join('')}</ol>
+  `;
+  document.getElementById('caseContent').innerHTML = html;
+  document.getElementById('modelAnswerBox').style.display = 'none';
+  document.getElementById('feedbackBox').style.display = 'none';
+  App.modelAnswerVisible = false;
+};
+
+App.sanitizeJSON = function(str) {
+  let result = '';
+  let inString = false;
+  let escaped = false;
+  for (let i = 0; i < str.length; i++) {
+    const c = str[i];
+    if (escaped) { result += c; escaped = false; continue; }
+    if (c === '\\' && inString) { escaped = true; result += c; continue; }
+    if (c === '"') { inString = !inString; result += c; continue; }
+    if (inString && c.charCodeAt(0) < 0x20) {
+      if (c === '\n') result += '\\n';
+      else if (c === '\r') result += '\\r';
+      else if (c === '\t') result += '\\t';
+      else result += '\\u' + ('000' + c.charCodeAt(0).toString(16)).slice(-4);
+    } else {
+      result += c;
+    }
+  }
+  return result;
+};
+
+App.generateCaseWithAI = async function() {
+  if (!App.currentUser) return;
+  document.getElementById('caseLoading').style.display = 'block';
+  try {
+    if (!App.temasActuales || App.temasActuales.length === 0) {
+      throw new Error('No hay temario disponible. Recargue la página.');
+    }
+    const indice = Math.floor(Math.random() * App.temasActuales.length);
+    const temaSeleccionado = App.temasActuales[indice];
+    console.log(`Tema seleccionado aleatoriamente (#${indice+1}): ${temaSeleccionado}`);
+
+    const prompt = `Eres un experto evaluador de la Policía Nacional del Ecuador. Genera un caso práctico para un especialista en ${App.currentUser.carrera}. El caso debe centrarse EXCLUSIVAMENTE en el siguiente tema del temario:\n\n"${temaSeleccionado}"\n\nCombina la especialidad con doctrina policial, administración pública ecuatoriana (LOSNCP) y pensamiento crítico. Proporciona un contexto operacional realista, 3 preguntas técnicas y la respuesta técnica detallada. La respuesta técnica no debe exceder las 500 palabras. Devuelve la respuesta en formato JSON con exactamente los siguientes campos: "enunciado" (texto), "preguntas" (array de strings) y "solucion" (texto). No incluyas explicaciones adicionales. Solo el JSON.`;
+
+    const response = await App.callDeepSeek([
+      { role: 'system', content: 'Eres un generador de casos prácticos. Responde SOLO con un objeto JSON válido, sin markdown alrededor.' },
+      { role: 'user', content: prompt }
+    ], 0.5, 8000);
+
+    let jsonStr = response.trim();
+    const fenceMatch = jsonStr.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/);
+    if (fenceMatch) { jsonStr = fenceMatch[1].trim(); }
+    const firstBrace = jsonStr.indexOf('{');
+    if (firstBrace > 0) { jsonStr = jsonStr.substring(firstBrace); }
+
+    jsonStr = App.sanitizeJSON(jsonStr);
+    const caseData = JSON.parse(jsonStr);
+
+    if (caseData.enunciado && caseData.preguntas && caseData.solucion) {
+      App.currentCase = caseData;
+      App.displayCase(caseData);
+    } else {
+      throw new Error('El JSON no contiene los campos requeridos.');
+    }
+  } catch (e) {
+    console.error(e);
+    document.getElementById('caseContent').innerHTML = `<p>Error al generar caso con IA. ${e.message}</p>`;
+    App.currentCase = null;
+  } finally {
+    document.getElementById('caseLoading').style.display = 'none';
+  }
+};
+
+App.showModelAnswer = function() {
+  if (!App.currentCase) { alert('Primero debe crear un caso práctico.'); return; }
+  const box = document.getElementById('modelAnswerBox');
+  document.getElementById('modelAnswerContent').innerHTML = `<pre>${App.currentCase.solucion}</pre>`;
+  box.style.display = 'block';
+  document.getElementById('feedbackBox').style.display = 'none';
+  App.modelAnswerVisible = true;
+};
+
+App.reviewMyAnswer = async function() {
+  if (!App.currentCase) { alert('No hay caso práctico activo.'); return; }
+  const userText = document.getElementById('userAnswer').value.trim();
+  if (!userText) { alert('Escriba su respuesta antes de solicitar revisión.'); return; }
+  if (!App.modelAnswerVisible) {
+    alert('Primero haga clic en "Ver respuesta técnica".');
+    return;
+  }
+  document.getElementById('feedbackLoading').style.display = 'block';
+  document.getElementById('feedbackBox').style.display = 'none';
+  try {
+    const prompt = `Eres un instructor experto de la Policía Nacional del Ecuador. Evalúa la respuesta del aspirante a especialista en ${App.currentUser.carrera}.\n\nCaso práctico:\n${App.currentCase.enunciado}\n\nPreguntas:\n${App.currentCase.preguntas.join('\n')}\n\nRespuesta modelo:\n${App.currentCase.solucion}\n\nRespuesta del aspirante:\n${userText}\n\nSeñala aciertos y errores concretos con tono constructivo, no condescendiente. Al final sugiere qué temas del temario repasar. Máximo 500 palabras.`;
+    const feedback = await App.callDeepSeek([
+      { role: 'system', content: 'Eres un instructor evaluador. Responde con texto claro y constructivo.' },
+      { role: 'user', content: prompt }
+    ], 0.7, 3000);
+    document.getElementById('feedbackContent').innerHTML = `<pre style="white-space: pre-wrap;">${feedback}</pre>`;
+    document.getElementById('feedbackBox').style.display = 'block';
+  } catch (e) {
+    document.getElementById('feedbackContent').innerHTML = `<p style="color:red;">Error al obtener evaluación: ${e.message}</p>`;
+    document.getElementById('feedbackBox').style.display = 'block';
+  } finally {
+    document.getElementById('feedbackLoading').style.display = 'none';
+  }
+};
+
+App.callDeepSeek = async function(messages, temperature = 0.7, maxTokens = 2000) {
+  const resp = await fetch(App.API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${App.API_KEY}` },
+    body: JSON.stringify({ model: App.MODEL, messages, temperature, max_tokens: maxTokens })
+  });
+  if (!resp.ok) { const errBody = await resp.text(); throw new Error(`API error ${resp.status}: ${errBody}`); }
+  const data = await resp.json();
+  return data.choices[0].message.content;
+};
+
+App.mostrarMuestra = function() {
+  const modal = document.getElementById('modalMuestra');
+  const content = document.getElementById('muestraContent');
+  content.innerHTML = `
+    <p><strong>Contexto operacional:</strong></p>
+    <p>${App.muestraCaso.enunciado}</p>
+    <p><strong>Preguntas:</strong></p>
+    <ol>${App.muestraCaso.preguntas.map(p => `<li>${p}</li>`).join('')}</ol>
+    <p><strong>Respuesta técnica:</strong></p>
+    <pre>${App.muestraCaso.solucion}</pre>
+  `;
+  modal.style.display = 'flex';
+};
+
+App.cerrarModal = function() {
+  document.getElementById('modalMuestra').style.display = 'none';
+};
+
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('btnIngresar').addEventListener('click', App.login);
+  document.getElementById('btnLogout').addEventListener('click', App.logout);
+  document.getElementById('btnCasoBanco').addEventListener('click', App.loadCaseFromBank);
+  document.getElementById('btnCasoIA').addEventListener('click', App.generateCaseWithAI);
+  document.getElementById('btnVerRespuesta').addEventListener('click', App.showModelAnswer);
+  document.getElementById('btnRevisar').addEventListener('click', App.reviewMyAnswer);
+  document.getElementById('btnMuestra').addEventListener('click', App.mostrarMuestra);
+  document.getElementById('closeModalBtn').addEventListener('click', App.cerrarModal);
+  window.addEventListener('click', (e) => {
+    if (e.target === document.getElementById('modalMuestra')) App.cerrarModal();
+  });
+  App.mostrarAcceso();
+});
+</script>
+</body>
+</html>
