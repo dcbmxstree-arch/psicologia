@@ -167,8 +167,11 @@ const App = {
   temasActuales: [],
   usuarios: [
     { cedula: '1755555555', carrera: 'Psicología' },
-    { cedula: '1766666666', carrera: 'Psicología Forense' },
-    { cedula: '1777777777', carrera: 'Comunicación Social' }
+    { cedula: '1703456789', carrera: 'Psicología' },
+    { cedula: '1703456789', carrera: 'Psicología Forense' },
+     { cedula: '1766666666', carrera: 'Psicología Forense' },
+    { cedula: '1123456780', carrera: 'Comunicación Social' }
+    { cedula: '1812345678', carrera: 'Comunicación Social' }
   ]
 };
 
@@ -408,7 +411,7 @@ App.login = function() {
     App.currentUser = encontrado;
     App.mostrarPanel();
   } else {
-    errorDiv.textContent = 'Cédula o carrera no autorizada. Pruebe: 1755555555 (Psicología), 1766666666 (Psicología Forense), 1777777777 (Comunicación Social).';
+    errorDiv.textContent = 'Cédula o carrera no autorizada.';
   }
 };
 
